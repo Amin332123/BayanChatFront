@@ -565,7 +565,7 @@ body {
 
 .input-wrapper textarea {
   width: 100%;
-  padding: 13px 18px;
+  padding: 50px 18px 13px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 14px;
