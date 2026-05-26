@@ -159,18 +159,15 @@ const SURAH_NAMES = {
 }
 
 const SUGGESTIONS = [
-  'أشعر باكتئاب شديد',
-  'أريد أن أتزوج',
-  'i need money',
   'I feel lonely',
   'I feel anxious',
   'I feel sad',
   'I feel lost',
   'I need guidance',
   'I feel grateful',
-  'I miss my mom',
-  'أنا سعيد',
   'I feel peaceful',
+  'I feel stressed',
+  'I feel hopeful',
 ]
 
 const categoryLabel = {
@@ -190,16 +187,27 @@ const categoryLabel = {
 }
 
 export default function Page() {
-  const [messages, setMessages] = useState(loadMessages)
+  const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [footnote, setFootnote] = useState(null)
+  const [hasMounted, setHasMounted] = useState(false)
   const chatRef = useRef(null)
   const inputRef = useRef(null)
 
   useEffect(() => {
-    saveMessages(messages)
-  }, [messages])
+    const saved = loadMessages()
+    if (saved.length > 0) {
+      setMessages(saved)
+    }
+    setHasMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (hasMounted) {
+      saveMessages(messages)
+    }
+  }, [messages, hasMounted])
 
   useEffect(() => {
     if (chatRef.current) {
