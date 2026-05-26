@@ -227,7 +227,7 @@ export default function Page() {
     setLoading(true)
 
     try {
-      const res = await fetch('http://localhost:8000/api/process-reflection', {
+      const res = await fetch('https://bayanchat-api.onrender.com/api/process-reflection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: text.trim() }),
