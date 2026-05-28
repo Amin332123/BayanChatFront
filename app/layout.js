@@ -1,5 +1,4 @@
 import { Inter, Amiri } from 'next/font/google'
-import { AuthProvider } from './context/AuthContext'
 import './globals.css'
 
 const inter = Inter({
@@ -39,7 +38,7 @@ export default function RootLayout({ children }) {
       <body>
         <div className="deco-side left" aria-hidden />
         <div className="deco-side right" aria-hidden />
-        <AuthProvider>{children}</AuthProvider>
+        {children}
       </body>
     </html>
   )

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useAuth } from '../context/AuthContext'
+
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://bayanchat-api.onrender.com'
 
 const EMOTION_ICONS = {
   sadness: '😢', anxiety: '😰', anger: '😤', gratitude: '🤲',
@@ -32,7 +33,6 @@ function formatRelativeTime(ts) {
 }
 
 export default function ConversationsList({ onSelect }) {
-  const { authFetch, user } = useAuth()
   const [conversations, setConversations] = useState([])
   const [loading, setLoading] = useState(true)
   const [showNew, setShowNew] = useState(false)
@@ -41,20 +41,21 @@ export default function ConversationsList({ onSelect }) {
 
   const load = useCallback(async () => {
     try {
-      const res = await authFetch('/api/conversations')
+      const res = await fetch(`${API}/api/conversations`)
       const data = await res.json()
       setConversations(data.data || [])
     } catch {} finally {
       setLoading(false)
     }
-  }, [authFetch])
+  }, [])
 
   useEffect(() => { load() }, [load])
 
   const startPrivate = async (otherId) => {
     try {
-      const res = await authFetch('/api/conversations', {
+      const res = await fetch(`${API}/api/conversations`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'private', participant_ids: [otherId] }),
       })
       const data = await res.json()
@@ -65,7 +66,7 @@ export default function ConversationsList({ onSelect }) {
   }
 
   const filtered = users.filter(
-    (u) => u.id !== user?.id && u.name.toLowerCase().includes(search.toLowerCase()),
+    (u) => u.name.toLowerCase().includes(search.toLowerCase()),
   )
 
   const tone = (c) => c.tone || 'casual'
@@ -125,7 +126,7 @@ export default function ConversationsList({ onSelect }) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   ) : (
                     <span className="conv-avatar-letter">
-                      {c.participants?.find((p) => p.id !== user?.id)?.name?.[0] || '?'}
+                      {c.participants?.[0]?.name?.[0] || '?'}
                     </span>
                   )}
                 </div>
@@ -134,7 +135,7 @@ export default function ConversationsList({ onSelect }) {
                     <span className="conv-name">
                       {c.type === 'group'
                         ? (c.name || 'Group')
-                        : (c.participants?.find((p) => p.id !== user?.id)?.name || 'Unknown')}
+                        : (c.participants?.[0]?.name || 'Unknown')}
                     </span>
                     <span className="conv-time">
                       {c.latest_message?.created_at ? formatRelativeTime(c.latest_message.created_at) : ''}
@@ -161,7 +162,7 @@ export default function ConversationsList({ onSelect }) {
 
   async function loadUsers() {
     try {
-      const res = await authFetch('/api/users')
+      const res = await fetch(`${API}/api/users`)
       const data = await res.json()
       setUsers(data.data || [])
     } catch {}

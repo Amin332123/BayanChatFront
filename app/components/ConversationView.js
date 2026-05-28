@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useAuth } from '../context/AuthContext'
+
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://bayanchat-api.onrender.com'
 
 const EMOJIS = ['❤️', '👍', '😂', '😢', '😡', '🤲']
 
@@ -27,7 +28,6 @@ function formatDate(ts) {
 }
 
 export default function ConversationView({ conversation, onBack }) {
-  const { authFetch, user } = useAuth()
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -38,14 +38,14 @@ export default function ConversationView({ conversation, onBack }) {
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
-  const otherParticipant = conversation.participants?.find((p) => p.id !== user?.id)
+  const otherParticipant = conversation.participants?.[0]
   const convName = conversation.type === 'group'
     ? (conversation.name || 'Group')
     : (otherParticipant?.name || 'Unknown')
 
   const loadMessages = useCallback(async () => {
     try {
-      const res = await authFetch(`/api/conversations/${conversation.id}/messages?per_page=100`)
+      const res = await fetch(`${API}/api/conversations/${conversation.id}/messages?per_page=100`)
       const data = await res.json()
       const msgs = data.data?.data || data.data || []
       setMessages(msgs.reverse())
@@ -53,19 +53,19 @@ export default function ConversationView({ conversation, onBack }) {
     } catch {} finally {
       setLoading(false)
     }
-  }, [conversation.id, authFetch])
+  }, [conversation.id])
 
   const loadAnalysis = useCallback(async () => {
     try {
-      const res = await authFetch(`/api/conversations/${conversation.id}/analyze`)
+      const res = await fetch(`${API}/api/conversations/${conversation.id}/analyze`)
       const data = await res.json()
       setAnalysis(data.data)
     } catch {}
-  }, [conversation.id, authFetch])
+  }, [conversation.id])
 
   const markRead = async () => {
     try {
-      await authFetch(`/api/conversations/${conversation.id}/read`, { method: 'POST' })
+      await fetch(`${API}/api/conversations/${conversation.id}/read`, { method: 'POST' })
     } catch {}
   }
 
@@ -82,8 +82,9 @@ export default function ConversationView({ conversation, onBack }) {
     const text = input.trim()
     setInput('')
     try {
-      const res = await authFetch(`/api/conversations/${conversation.id}/messages`, {
+      const res = await fetch(`${API}/api/conversations/${conversation.id}/messages`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: text }),
       })
       const data = await res.json()
@@ -98,8 +99,9 @@ export default function ConversationView({ conversation, onBack }) {
 
   const handleReact = async (msgId, reaction) => {
     try {
-      await authFetch(`/api/conversations/${conversation.id}/messages/${msgId}/react`, {
+      await fetch(`${API}/api/conversations/${conversation.id}/messages/${msgId}/react`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reaction }),
       })
       loadMessages()
@@ -108,8 +110,9 @@ export default function ConversationView({ conversation, onBack }) {
 
   const handleUnreact = async (msgId, reaction) => {
     try {
-      await authFetch(`/api/conversations/${conversation.id}/messages/${msgId}/unreact`, {
+      await fetch(`${API}/api/conversations/${conversation.id}/messages/${msgId}/unreact`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reaction }),
       })
       loadMessages()
@@ -117,7 +120,7 @@ export default function ConversationView({ conversation, onBack }) {
   }
 
   const hasMyReaction = (msg, reaction) => {
-    return msg.reactions?.some((r) => r.user_id === user?.id && r.reaction === reaction)
+    return msg.reactions?.some((r) => r.reaction === reaction)
   }
 
   const groupedReactions = (msg) => {
@@ -214,9 +217,9 @@ export default function ConversationView({ conversation, onBack }) {
                 {showDateSeparator(msg, i) && (
                   <div className="date-separator">{formatDate(msg.created_at)}</div>
                 )}
-                <div className={`conv-msg ${msg.sender?.id === user?.id ? 'own' : 'other'}`}>
-                  {msg.sender?.id !== user?.id && (
-                    <div className="conv-msg-sender">{msg.sender?.name}</div>
+                <div className="conv-msg other">
+                  {msg.sender?.name && (
+                    <div className="conv-msg-sender">{msg.sender.name}</div>
                   )}
                   <div className={`conv-msg-bubble ${msg.type === 'system' ? 'system' : ''}`}>
                     {msg.parent && (
