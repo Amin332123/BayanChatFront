@@ -210,8 +210,12 @@ export default function Page() {
   }, [messages, hasMounted])
 
   useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight
+    const el = chatRef.current
+    if (!el) return
+    const threshold = 80
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < threshold
+    if (isNearBottom) {
+      el.scrollTop = el.scrollHeight
     }
   }, [messages, loading])
 
