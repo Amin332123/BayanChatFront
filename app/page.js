@@ -303,9 +303,7 @@ export default function Page() {
       <div className="chat" ref={chatRef}>
         {messages.length === 0 && !loading ? (
           <div className="empty-state">
-            <div className="empty-glow">
-              <img src="/logo.png" alt="Bayan Chat" />
-            </div>
+            <img src="/logo.png" alt="Bayan Chat" className="empty-logo" />
             <h2>What&rsquo;s on your heart?</h2>
             <p>Tell me what you&rsquo;re feeling, and I&rsquo;ll bring you verses from the Quran that speak to your soul.</p>
             <div className="suggestions">

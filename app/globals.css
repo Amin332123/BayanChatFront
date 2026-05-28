@@ -692,43 +692,12 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.empty-glow {
+.empty-logo {
   width: 88px;
   height: 88px;
-  border-radius: 50%;
-  background: var(--gold-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  box-shadow: 0 6px 32px var(--gold-glow);
-  position: relative;
-}
-
-.empty-glow::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  background: var(--gold-gradient);
-  opacity: 0.15;
-  filter: blur(12px);
-  animation: pulseGlow 3s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.15; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(1.1); }
-}
-
-.empty-glow img {
-  width: 100%;
-  height: 100%;
   object-fit: contain;
+  margin-bottom: 16px;
   display: block;
-  position: relative;
-  z-index: 1;
-  padding: 12px;
 }
 
 .empty-state h2 {
