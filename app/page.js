@@ -238,6 +238,10 @@ export default function Page() {
     setInput('')
     setLoading(true)
 
+    setTimeout(() => {
+      chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' })
+    }, 0)
+
     try {
       const res = await fetch('https://bayanchat-api.onrender.com/api/process-reflection', {
         method: 'POST',
